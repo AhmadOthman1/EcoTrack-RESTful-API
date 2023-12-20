@@ -2,12 +2,13 @@ const User = require("../../models/user");
 const tempUser = require("../../models/tempUser");
 const tempUserInterests = require("../../models/tempUserInterests");
 const Interests = require("../../models/interests");
-const UserInterests=require("../../models/userInterests");
+const UserInterests = require("../../models/userInterests");
 const { Op } = require('sequelize');
 const validator = require('../validator');
 const bcrypt = require('bcrypt');
 const moment = require('moment');
 const nodemailer = require('nodemailer');
+const Locatons = require("../../models/location");
 
 
 
@@ -72,7 +73,7 @@ exports.postSignup = async (req, res, next) => {
         body: req.body
       });
     }
-    for(let interest of interests){
+    for (let interest of interests) {
       if (interest.length < 1 || interest.length > 255) {
         return res.status(409).json({
           message: interest + 'is Not a Valid interests (length must be: 1-255)',
@@ -80,14 +81,26 @@ exports.postSignup = async (req, res, next) => {
         });
       }
     }
-    
+
     if (location.length < 1 || location.length > 255) {
       return res.status(409).json({
         message: 'Not Valid location (length must be: 1-255)',
         body: req.body
       });
     }
-
+    var locations = await Locatons.findAll();
+    var isLocationValid = false;
+    for (let dpLocations of locations) {
+      if (dpLocations.location == location.toLowerCase().trim()) {
+        isLocationValid = true;
+      }
+    }
+    if (!isLocationValid) {
+      return res.status(409).json({
+        message: 'Not Valid location, call /locations to get all available locations',
+        body: req.body
+      });
+    }
     // find if user exsist in user table
     const existingUserId = await User.findOne({
       where: {
@@ -132,7 +145,7 @@ exports.postSignup = async (req, res, next) => {
     }
 
     // after all that validation save the new user and send the VerificationCode
-    await createUserInTemp(userId, name, email, password, interests, location);
+    await createUserInTemp(userId, name, email, password, interests, location.toLowerCase().trim());
     return res.status(200).json({
       message: "Please check your Email for the VerificationCode",
       body: req.body
@@ -165,7 +178,7 @@ async function createUserInTemp(userId, name, email, password, interests, locati
     verificationCode: VerificationCode,
   });
   //save interests in temporary table until user verify his account
-  for(let interest of interests){
+  for (let interest of interests) {
     const newTempUserInterest = await tempUserInterests.create({
       interest: interest.toLowerCase().trim(),
       userId: userId,
@@ -235,8 +248,8 @@ exports.postVerificationCode = async (req, res, next) => {
             userId: existingUserInTemp.userId,
           }
         });
-        
-        for(let UserInterest of existingtempUserInterests){
+
+        for (let UserInterest of existingtempUserInterests) {
           //find database existingInterests
           const existingInterests = await Interests.findOne({
             where: {
@@ -244,33 +257,48 @@ exports.postVerificationCode = async (req, res, next) => {
             }
           });
           //if Interests already exists increase its counter (how many time it used)
-          if(existingInterests){
+          if (existingInterests) {
             await Interests.update(
-              {counter: existingInterests.counter++},
+              { counter: existingInterests.counter++ },
               {
-              where: {
-                interestKeyWord: UserInterest.interest,
-              }
-            });
+                where: {
+                  interestKeyWord: UserInterest.interest,
+                }
+              });
           }
-          else{
+          else {
             //create new interest
             var newInterests = await Interests.create({
-              interestKeyWord:UserInterest.interest,
-              counter:1,
+              interestKeyWord: UserInterest.interest,
+              counter: 1,
             });
             //add it to the user
             await UserInterests.create({
-              interestId:newInterests.interestId,
-              userId:existingUserInTemp.userId,
+              interestId: newInterests.interestId,
+              userId: existingUserInTemp.userId,
             });
           }
           //delete the interest from tempUserInterests
           UserInterest.destroy();
         }
+        const existingLocation = await Locatons.findOne({
+          where: {
+            location: existingUserInTemp.location,
+          }
+        });
+        if (existingLocation) {
+          await Locatons.update(
+            { counter: existingLocation.counter++ },
+            {
+              where: {
+                location: existingUserInTemp.location,
+              },
+            })
+        }
+
         await existingUserInTemp.destroy();
         return res.status(200).json({
-          message:"Your account has been verified successfully, Go to loginPage",
+          message: "Your account has been verified successfully, Go to loginPage",
           body: req.body
         });
       }

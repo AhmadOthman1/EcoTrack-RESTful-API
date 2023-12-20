@@ -20,7 +20,6 @@ sequelize.sync().then(result =>{
 }).catch(err=>{
     console.log(err);
 });
-
 /*
 const express=require('express');
 const sequelize=require('./util/database');
@@ -36,14 +35,14 @@ const Location=require('./models/location');
 const TempUser=require('./models/tempUser');
 const TempUserInterests=require('./models/tempUserInterests');
 
-//const createTestData =require('./models/createTestData');
+const createMainData =require('./models/createMainData');
 
 
 
 const app=express();
 
 //{force:true}
-sequelize.sync({force:true}).then(result =>{
+sequelize.sync().then(result =>{
     console.log(result);
     app.listen(5000);
   

@@ -3,7 +3,7 @@ const User = require("../models/user");
 require('dotenv').config();
 //generate new access token with expire time = 10 m
 function generateAccessToken(user) {
-  return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '10s' })
+  return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '10m' })
 }
 //middle auth for requests 
 function authenticateToken(req, res, next) {
