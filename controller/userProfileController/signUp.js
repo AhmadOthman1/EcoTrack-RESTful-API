@@ -153,19 +153,19 @@ exports.postSignup = async (req, res, next) => {
 async function createUserInTemp(userId, name, email, password, interests, location) {
   var VerificationCode = Math.floor(10000 + Math.random() * 90000);
   //const hashedVerificationCode = await bcrypt.hash(VerificationCode.toString(), 10);
-  await sendVerificationCode(email, VerificationCode);
-  const hashedPassword = await bcrypt.hash(password, 10);// hash the password
+  await sendVerificationCode(email.trim(), VerificationCode);
+  const hashedPassword = await bcrypt.hash(password.trim(), 10);// hash the password
   const newUser = await tempUser.create({
-    userId: userId,
-    name: name,
-    email: email,
+    userId: userId.trim(),
+    name: name.trim(),
+    email: email.trim(),
     password: hashedPassword,
-    location: location,
+    location: location.trim(),
     verificationCode: VerificationCode,
   });
   for(let interest of interests){
     const newTempUserInterest = await tempUserInterests.create({
-      interest: interest,
+      interest: interest.toLowerCase().trim(),
       userId: userId,
     });
   }

@@ -11,7 +11,7 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // Use feed routes
-app.use('/user', userRoutes);
+app.use('/', userRoutes);
 //{force:true}
 sequelize.sync().then(result =>{
     console.log(result);
