@@ -1,10 +1,11 @@
 const express=require('express');
-const userController=require('../controller/userController')
+const signUpController=require('../controller/userProfileController/signUp')
 
 
 const router=express.Router();
 //auth
-router.get('/signup',userController.postSignup);
-router.get('/login',userController.login);
-//router.post('/post',userController.createPost)
+router.post('/signup',signUpController.postSignup);
+router.post('/verificationCode',signUpController.postVerificationCode);
+
+//router.post('/login',signUpController.login)
 module.exports=router;

@@ -1,7 +1,7 @@
 const Sequelize=require('sequelize');
 
 const sequelize=require('../util/database');
-const User=sequelize.define('user',{
+const TempUser=sequelize.define('tempUser',{
     userId:{
         type:Sequelize.STRING,
         allowNull:false,
@@ -21,16 +21,12 @@ const User=sequelize.define('user',{
         type:Sequelize.STRING(1000),
         allowNull:false
     },
-    score:{
-        type:Sequelize.INTEGER,
-        allowNull:false
-    },
-    token:{
-        type:Sequelize.STRING(2000),
+    verificationCode:{
+        type:Sequelize.STRING(5),
         allowNull:true
     }
 });
 
 
 
-module.exports=User;
+module.exports=TempUser;

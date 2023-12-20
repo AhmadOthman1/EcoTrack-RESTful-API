@@ -30,6 +30,11 @@ const Data=require('./models/data');
 const Alert=require('./models/alert');
 const EducationalRes=require('./models/educationalRes');
 const CommunityReporting=require('./models/communityReporting');
+const Interests=require('./models/interests');
+const UserInterest=require('./models/userInterests');
+const Location=require('./models/location');
+const TempUser=require('./models/tempUser');
+const TempUserInterests=require('./models/tempUserInterests');
 
 //const createTestData =require('./models/createTestData');
 
@@ -40,7 +45,7 @@ const app=express();
 //{force:true}
 sequelize.sync({force:true}).then(result =>{
     console.log(result);
-    app.listen(6000);
+    app.listen(5000);
   
 }).catch(err=>{
     console.log(err);

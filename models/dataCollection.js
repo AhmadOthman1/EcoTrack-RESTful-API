@@ -13,7 +13,7 @@ const DataCollection = sequelize.define('dataCollection', {
         type: Sequelize.STRING,
         allowNull: false,
     },
-    intrests: {
+    interests: {
         type: Sequelize.STRING,
         allowNull: true
     },
