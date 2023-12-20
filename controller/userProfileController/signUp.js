@@ -155,6 +155,7 @@ async function createUserInTemp(userId, name, email, password, interests, locati
   //const hashedVerificationCode = await bcrypt.hash(VerificationCode.toString(), 10);
   await sendVerificationCode(email.trim(), VerificationCode);
   const hashedPassword = await bcrypt.hash(password.trim(), 10);// hash the password
+  //save the user in temporary table until he verify his account
   const newUser = await tempUser.create({
     userId: userId.trim(),
     name: name.trim(),
@@ -163,6 +164,7 @@ async function createUserInTemp(userId, name, email, password, interests, locati
     location: location.trim(),
     verificationCode: VerificationCode,
   });
+  //save interests in temporary table until user verify his account
   for(let interest of interests){
     const newTempUserInterest = await tempUserInterests.create({
       interest: interest.toLowerCase().trim(),
@@ -170,6 +172,7 @@ async function createUserInTemp(userId, name, email, password, interests, locati
     });
   }
 }
+//send VerificationCode to his email 
 async function sendVerificationCode(email, code) {
   const transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -200,7 +203,7 @@ async function sendVerificationCode(email, code) {
   }
 
 }
-
+//get the VerificationCode
 exports.postVerificationCode = async (req, res, next) => {
   try {
 
@@ -216,6 +219,7 @@ exports.postVerificationCode = async (req, res, next) => {
       const storedVerificationCode = existingUserInTemp.verificationCode;// get the hashed code from the thable
       //compare verificationCode
       if (verificationCode == storedVerificationCode) {
+        //move user from temp table to user table
         const newUser = await User.create({
           userId: existingUserInTemp.userId,
           name: existingUserInTemp.name,

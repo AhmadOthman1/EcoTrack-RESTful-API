@@ -1,49 +1,37 @@
 const jwt = require('jsonwebtoken');
 const User = require("../models/user");
 require('dotenv').config();
-
+//generate new access token with expire time = 10 m
 function generateAccessToken(user) {
-  return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '10m' })
+  return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '10s' })
 }
+//middle auth for requests 
 function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization']
-  const token = authHeader && authHeader.split(' ')[1]
-  if (token == null) return res.status(401).json({
-    message: 'server Error',
-    body: req.body
+  const token = authHeader;//get token
+  if (token == null) //invalid value
+  return res.status(401).json({
+    message: 'invalid value',
   });
 
   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
     if (err) return res.status(403).json({
-      message: 'server Error',
-      body: req.body
+      message: 'token expired',
     });
     req.user = user
     next()
   })
 }
-function socketAuthenticateToken(msg) {
-  const authHeader = msg
-  const token = authHeader 
-  if (token == null) return 401
-
-  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
-    if (err) return 403
-    
-  })
-  return 200
-}
+//generate new accessToken
 function getRefreshToken (req, res, next)  {
   const authHeader = req.headers['authorization']
-  const refreshToken = authHeader && authHeader.split(' ')[1]
+  const refreshToken = authHeader ;
   if (refreshToken == null) return res.status(401).json({
-    message: 'server Error',
-    body: req.body
+    message: 'invalid value',
   });
   jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, async (err, user) => {
     if (err) return res.status(403).json({
-      message: 'server Error',
-      body: req.body
+      message: 'token invalid',
     });
     const existingEmail = await User.findOne({
       where: {
@@ -52,19 +40,18 @@ function getRefreshToken (req, res, next)  {
     });
     if (existingEmail) {
       if (existingEmail.token!= refreshToken) return res.status(403).json({
-        message: 'server Error',
-        body: req.body
+        message: 'token invalid',
       });
-      const userInfo = { email: user.email , username : user.username };
+      const userInfo = { email: user.email , userId : user.userId };
       const accessToken = generateAccessToken(userInfo);
-      res.json({ accessToken: accessToken })
+      res.status(200).json({ accessToken: accessToken })
     }else{
       return res.status(403).json({
-        message: 'server Error',
+        message: 'token invalid',
         body: req.body
       });
     }
 
   })
 }
-module.exports = { generateAccessToken,socketAuthenticateToken, authenticateToken ,getRefreshToken };
+module.exports = { generateAccessToken, authenticateToken ,getRefreshToken };
