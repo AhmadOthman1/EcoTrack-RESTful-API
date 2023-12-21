@@ -145,7 +145,7 @@ exports.postSignup = async (req, res, next) => {
     }
 
     // after all that validation save the new user and send the VerificationCode
-    await createUserInTemp(userId, name, email, password, interests, location.toLowerCase().trim(),res);
+    await createUserInTemp(userId, name, email, password, interests, location.toLowerCase().trim(), res);
     return res.status(200).json({
       message: "Please check your Email for the VerificationCode",
       body: req.body
@@ -163,10 +163,10 @@ exports.postSignup = async (req, res, next) => {
 
 
 
-async function createUserInTemp(userId, name, email, password, interests, location,res) {
+async function createUserInTemp(userId, name, email, password, interests, location, res) {
   var VerificationCode = Math.floor(10000 + Math.random() * 90000);
   //const hashedVerificationCode = await bcrypt.hash(VerificationCode.toString(), 10);
-  await sendVerificationCode(email.trim(), VerificationCode,res);
+  await sendVerificationCode(email.trim(), VerificationCode, res);
   const hashedPassword = await bcrypt.hash(password.trim(), 10);// hash the password
   //save the user in temporary table until he verify his account
   const newUser = await tempUser.create({
@@ -186,7 +186,7 @@ async function createUserInTemp(userId, name, email, password, interests, locati
   }
 }
 //send VerificationCode to his email 
-async function sendVerificationCode(email, code,res) {
+async function sendVerificationCode(email, code, res) {
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -258,23 +258,23 @@ exports.postVerificationCode = async (req, res, next) => {
           });
           //if Interests already exists increase its counter (how many time it used)
           if (existingInterests) {
-            var newCounter =existingInterests.counter+1;
+            var newCounter = existingInterests.counter + 1;
             var newUserInterest = await Interests.findOne({
-              where :{
+              where: {
                 interestKeyWord: UserInterest.interest,
               }
             })
             await Interests.update(
-              { counter:  newCounter},
+              { counter: newCounter },
               {
                 where: {
                   interestKeyWord: UserInterest.interest,
                 }
               });
-              await UserInterests.create({
-                interestId: newUserInterest.interestId,
-                userId: existingUserInTemp.userId,
-              });
+            await UserInterests.create({
+              interestId: newUserInterest.interestId,
+              userId: existingUserInTemp.userId,
+            });
           }
           else {
             //create new interest
@@ -289,7 +289,7 @@ exports.postVerificationCode = async (req, res, next) => {
             });
           }
           //delete the interest from tempUserInterests
-          UserInterest.destroy();
+          await UserInterest.destroy();
         }
         const existingLocation = await Location.findOne({
           where: {
@@ -297,9 +297,9 @@ exports.postVerificationCode = async (req, res, next) => {
           }
         });
         if (existingLocation) {
-          var newCounter =existingLocation.counter+1;
+          var newCounter = existingLocation.counter + 1;
           await Location.update(
-            { counter:  newCounter},
+            { counter: newCounter },
             {
               where: {
                 location: existingUserInTemp.location,

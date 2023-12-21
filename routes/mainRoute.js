@@ -21,6 +21,9 @@ router.get('/locations',getDBLocations.getLocations);
 router.get('/interests',getDBInterests.getInterests);
 router.post('/user/myProfile',authenticateToken, userProfile.updateProfileInfo);
 router.post('/user/changePassword',authenticateToken, userProfile.changePassword);
+router.post('/user/removeInterest',authenticateToken, userProfile.removeInterest);
+router.post('/user/addInterest',authenticateToken, userProfile.addInterest);
+router.post('/user/deleteAccount',authenticateToken, userProfile.deleteAccount);
 
 
 
