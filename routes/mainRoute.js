@@ -6,6 +6,7 @@ const { authenticateToken } = require('../controller/authController');
 const authController=require('../controller/authController')
 const userProfile=require('../controller/userProfileController/profileInfo')
 const getDBLocations=require('../controller/getLocations')
+const getDBInterests=require('../controller/getInterests')
 
 
 const router=express.Router();
@@ -17,6 +18,9 @@ router.post('/logout',authenticateToken,logoutController.postLogOut);
 router.post('/refreshToken', authController.getRefreshToken);
 router.get('/user/myProfile',authenticateToken, userProfile.getProfileInfo);
 router.get('/locations',getDBLocations.getLocations);
+router.get('/interests',getDBInterests.getInterests);
+router.post('/user/myProfile',authenticateToken, userProfile.updateProfileInfo);
+router.post('/user/changePassword',authenticateToken, userProfile.changePassword);
 
 
 

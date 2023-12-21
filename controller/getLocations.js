@@ -5,6 +5,7 @@ exports.getLocations = async (req, res) => {
     try {
         var dbLocations = await Locatons.findAll({
             attributes: ['location', 'counter'],
+            order: [['counter', 'DESC']],
         });
         if (dbLocations)
             return res.status(200).json({

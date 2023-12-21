@@ -8,7 +8,7 @@ const validator = require('../validator');
 const bcrypt = require('bcrypt');
 const moment = require('moment');
 const nodemailer = require('nodemailer');
-const Locatons = require("../../models/location");
+const Location = require("../../models/location");
 
 
 
@@ -88,7 +88,7 @@ exports.postSignup = async (req, res, next) => {
         body: req.body
       });
     }
-    var locations = await Locatons.findAll();
+    var locations = await Location.findAll();
     var isLocationValid = false;
     for (let dpLocations of locations) {
       if (dpLocations.location == location.toLowerCase().trim()) {
@@ -145,7 +145,7 @@ exports.postSignup = async (req, res, next) => {
     }
 
     // after all that validation save the new user and send the VerificationCode
-    await createUserInTemp(userId, name, email, password, interests, location.toLowerCase().trim());
+    await createUserInTemp(userId, name, email, password, interests, location.toLowerCase().trim(),res);
     return res.status(200).json({
       message: "Please check your Email for the VerificationCode",
       body: req.body
@@ -163,10 +163,10 @@ exports.postSignup = async (req, res, next) => {
 
 
 
-async function createUserInTemp(userId, name, email, password, interests, location) {
+async function createUserInTemp(userId, name, email, password, interests, location,res) {
   var VerificationCode = Math.floor(10000 + Math.random() * 90000);
   //const hashedVerificationCode = await bcrypt.hash(VerificationCode.toString(), 10);
-  await sendVerificationCode(email.trim(), VerificationCode);
+  await sendVerificationCode(email.trim(), VerificationCode,res);
   const hashedPassword = await bcrypt.hash(password.trim(), 10);// hash the password
   //save the user in temporary table until he verify his account
   const newUser = await tempUser.create({
@@ -186,12 +186,12 @@ async function createUserInTemp(userId, name, email, password, interests, locati
   }
 }
 //send VerificationCode to his email 
-async function sendVerificationCode(email, code) {
+async function sendVerificationCode(email, code,res) {
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
       user: 'advanced.2001z@gmail.com',
-      pass: 'uumi tfky oiuh galb',
+      pass: 'swid eimv ekdn jekj',
     },
   });
 
@@ -258,12 +258,22 @@ exports.postVerificationCode = async (req, res, next) => {
           });
           //if Interests already exists increase its counter (how many time it used)
           if (existingInterests) {
+            var newCounter =existingInterests.counter+1;
+            var newUserInterest = await Interests.findOne({
+              where :{
+                interestKeyWord: UserInterest.interest,
+              }
+            })
             await Interests.update(
-              { counter: existingInterests.counter++ },
+              { counter:  newCounter},
               {
                 where: {
                   interestKeyWord: UserInterest.interest,
                 }
+              });
+              await UserInterests.create({
+                interestId: newUserInterest.interestId,
+                userId: existingUserInTemp.userId,
               });
           }
           else {
@@ -281,14 +291,15 @@ exports.postVerificationCode = async (req, res, next) => {
           //delete the interest from tempUserInterests
           UserInterest.destroy();
         }
-        const existingLocation = await Locatons.findOne({
+        const existingLocation = await Location.findOne({
           where: {
             location: existingUserInTemp.location,
           }
         });
         if (existingLocation) {
-          await Locatons.update(
-            { counter: existingLocation.counter++ },
+          var newCounter =existingLocation.counter+1;
+          await Location.update(
+            { counter:  newCounter},
             {
               where: {
                 location: existingUserInTemp.location,
