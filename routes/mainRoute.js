@@ -7,6 +7,12 @@ const authController=require('../controller/authController')
 const userProfile=require('../controller/userProfileController/profileInfo')
 const getDBLocations=require('../controller/getLocations')
 const getDBInterests=require('../controller/getInterests')
+const locationsController = require('../controller/search/locationsController'); // Adjust the path as necessary
+const searchInterests=require('../controller/search/interests')
+const globalSearchController = require('../controller/search/globalSearch');
+const educationalSearchController = require('../controller/search/educationalSearchController'); 
+const dataSearchController = require('../controller/search/dataSearchController'); // Adjust the path as necessary
+const communityReportsSearchController = require('../controller/search/communityReportsSearchController'); // Adjust the path as necessary
 
 
 const router=express.Router();
@@ -24,6 +30,12 @@ router.post('/user/changePassword',authenticateToken, userProfile.changePassword
 router.post('/user/removeInterest',authenticateToken, userProfile.removeInterest);
 router.post('/user/addInterest',authenticateToken, userProfile.addInterest);
 router.post('/user/deleteAccount',authenticateToken, userProfile.deleteAccount);
+router.get('/search/locations/:key', locationsController.getLocations); // Define the route
+router.get('/search/interests/:key', searchInterests.getInterests);
+router.get('/search/global/:key', globalSearchController.globalSearch);
+router.get('/search/educational/:key', educationalSearchController.searchEducationalRes);
+router.get('/search/data/:key', dataSearchController.searchData);
+router.get('/search/communityreports/:key', communityReportsSearchController.searchCommunityReports);
 
 
 
