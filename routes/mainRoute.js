@@ -13,6 +13,7 @@ const globalSearchController = require('../controller/search/globalSearch');
 const educationalSearchController = require('../controller/search/educationalSearchController'); 
 const dataSearchController = require('../controller/search/dataSearchController'); // Adjust the path as necessary
 const communityReportsSearchController = require('../controller/search/communityReportsSearchController'); // Adjust the path as necessary
+const alertController = require('../controller/userProfileController/getAlertController'); // Adjust the path as necessary
 
 
 const router=express.Router();
@@ -36,6 +37,7 @@ router.get('/search/global/:key', globalSearchController.globalSearch);
 router.get('/search/educational/:key', educationalSearchController.searchEducationalRes);
 router.get('/search/data/:key', dataSearchController.searchData);
 router.get('/search/communityreports/:key', communityReportsSearchController.searchCommunityReports);
+router.get('/user/alerts',authenticateToken, alertController.getUserAlerts);
 
 
 
