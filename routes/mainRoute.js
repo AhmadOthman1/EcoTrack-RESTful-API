@@ -16,6 +16,18 @@ const communityReportsSearchController = require('../controller/search/community
 const alertController = require('../controller/userProfileController/getAlertController'); // Adjust the path as necessary
 const dataController  = require('../controller/userProfileController/getDataCollection'); // Adjust the path as necessary
 
+const getReports=require('../controller/comReportController/getReport')
+const createReports=require('../controller/comReportController/createReports')
+const updateReport=require('../controller/comReportController/updateReport')
+const deleteReport=require('../controller/comReportController/deleteReport')
+
+const getResources=require('../controller/eduResController/getResource')
+const createResources=require('../controller/eduResController/createResource')
+const updateResource=require('../controller/eduResController/updateResource')
+const deleteResource=require('../controller/eduResController/deleteResource')
+
+// const getImage=require('../uploads')
+
 
 const router=express.Router();
 //auth
@@ -41,6 +53,17 @@ router.get('/search/communityreports/:key', communityReportsSearchController.sea
 router.get('/user/alerts',authenticateToken, alertController.getUserAlerts);
 router.get('/user/data',authenticateToken, dataController.getDataCollection);
 
+router.get('/communityReports/getMyReports',authenticateToken, getReports.getMyReports);
+router.post('/communityReports/createReport',authenticateToken, createReports.createNewReport);
+router.put('/communityReports/updateReport/:reportId',authenticateToken, updateReport.updateReport);
+router.delete('/communityReports/deleteReport/:reportId',authenticateToken, deleteReport.deleteReport);
+
+router.get('/educationalResources/getMyResourses',authenticateToken, getResources.getMyResources);
+router.post('/educationalResources/createResource',authenticateToken, createResources.createNewResource);
+router.put('/educationalResources/updateResource/:resId',authenticateToken, updateResource.updateResource);
+router.delete('/educationalResources/deleteResource/:resId',authenticateToken, deleteResource.deleteResource);
+
+// router.get('/uploads', getImage);
 
 
 module.exports=router;
