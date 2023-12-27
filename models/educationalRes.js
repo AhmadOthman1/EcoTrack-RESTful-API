@@ -16,6 +16,11 @@ const EducationalRes = sequelize.define('educationalRes', {
     date: {
         type: Sequelize.STRING,
         allowNull: false,
+
+        validate: {
+            isDate: true // Ensures the date field is in the date format
+        }
+
     },
     interests: {
         type: Sequelize.STRING(1000),
