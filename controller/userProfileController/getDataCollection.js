@@ -15,40 +15,29 @@ const bcrypt = require('bcrypt');
 const { Sequelize } = require("sequelize");
 
 
-exports.getUserAlerts = async (req, res) => {
+exports.getDataCollection = async (req, res) => {
     try {
         const authHeader = req.headers['authorization'];
         const decoded = jwt.verify(authHeader, process.env.ACCESS_TOKEN_SECRET);
         var userUserId = decoded.userId;
-        const existinguserId = await User.findOne({
+      
+
+        const  {dataCollectionId}  =req.body; 
+        // Validate the provided dataCollectionId
+   
+
+        const dataEntries = await data.findAll({
             where: {
-                userId: userUserId
+                dataCollectionId: dataCollectionId
             },
+          
         });
-        
 
-            var dbAlerts = await Alert.findAll({
-                attributes: [ 'alertId','dataCollectionId'],
-                where: {
-                    userId: existinguserId.userId,
-                },
-                order: [['dataCollectionId', 'DESC']],
-                include: [{ 
-                    model: dataCollection,
-                    as: 'dataCollection',
-                   // include: [{
-                    //    model: data,  // Include the Data model here
-                    //    as: 'data'
-                  //  }]
-                }]
-            });
-            return res.status(200).json({
-                message: 'Your Alert',
-               
-                alerts: dbAlerts
-
-
-            });
+        // Return the data entries
+        return res.status(200).json({
+            message: 'Data for the provided Data Collection ID',
+            dataEntries: dataEntries
+        });
 
         }
      catch (err) {
