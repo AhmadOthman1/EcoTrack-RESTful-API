@@ -12,6 +12,8 @@ app.use(bodyParser.json());
 app.use(express.static('uploads'));
 
 
+
+
 // Use feed routes
 app.use('/', userRoutes);
 //{force:true}
