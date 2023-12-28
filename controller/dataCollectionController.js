@@ -1,4 +1,5 @@
 const DataCollection = require("../models/dataCollection");
+const Location = require("../models/location");
 
 const ensureDataCollectionModifier = (dataCollection, userId) => {
   return dataCollection.userId === userId;
@@ -30,15 +31,30 @@ const createDataCollection = async (req, res) => {
   const { location, interests, description, date } = req.body;
   const user = req.user;
 
-  if (interests.length < 1 || interests.length > 255) {
-    return res.status(409).json({
-      message: interest + "is Not a Valid interests (length must be: 1-255)",
-      body: req.body,
-    });
-  }
-
   userId = user.userId;
   try {
+    if (interests.length < 1 || interests.length > 255) {
+      return res.status(409).json({
+        message: interest + "is Not a Valid interests (length must be: 1-255)",
+        body: req.body,
+      });
+    }
+
+    if (location.length < 1 || location.length > 255) {
+      return res.status(409).json({
+        message: "Not Valid location (length must be: 1-255)",
+        body: req.body,
+      });
+    }
+    var locationFromDb = await Location.findByPk(location);
+
+    if (!locationFromDb) {
+      return res.status(409).json({
+        message:
+          "Not Valid location, call /locations to get all available locations",
+        body: req.body,
+      });
+    }
     const newDataCollection = await DataCollection.create({
       userId,
       location,
@@ -75,6 +91,22 @@ const updateDataCollection = async (req, res) => {
         body: req.body,
       });
     }
+    if (location.length < 1 || location.length > 255) {
+      return res.status(409).json({
+        message: "Not Valid location (length must be: 1-255)",
+        body: req.body,
+      });
+    }
+    var locationFromDb = await Location.findByPk(location);
+
+    if (!locationFromDb) {
+      return res.status(409).json({
+        message:
+          "Not Valid location, call /locations to get all available locations",
+        body: req.body,
+      });
+    }
+
     await dataCollection.update(req.body);
     res.status(200).json(dataCollection);
   } catch (error) {
