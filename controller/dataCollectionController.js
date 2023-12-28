@@ -1,6 +1,11 @@
+const Sequelize = require("sequelize");
+const { Op } = require("sequelize");
 const DataCollection = require("../models/dataCollection");
 const Location = require("../models/location");
 const User = require("../models/user");
+const Alert = require("../models/alert");
+const Interests = require("../models/interests");
+const UserInterests = require("../models/userInterests");
 
 const ensureDataCollectionModifier = (dataCollection, userId) => {
   return dataCollection.userId === userId;
@@ -72,6 +77,7 @@ const createDataCollection = async (req, res) => {
     const userFromDb = await User.findByPk(userId);
     await userFromDb.increment("score", { by: 1 });
 
+    notifyIntersted(newDataCollection);
     res.status(201).json(newDataCollection);
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
@@ -152,6 +158,59 @@ const deleteDataCollection = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
+const notifyIntersted = async (dataCollection) => {
+  const interest = dataCollection.interests;
+  const users = await findUsersByInterest(interest);
+  users.forEach(async (user) => {
+    notifySingleIntersted(user, dataCollection);
+    console.log("user notified");
+  });
+};
+const notifySingleIntersted = async (user, dataCollection) => {
+  await Alert.create({
+    dataCollectionId: dataCollection.dataCollectionId,
+    userId: user.userId,
+  });
+};
+
+async function findUsersByInterest(interestKeyword) {
+  try {
+    const interest = await Interests.findOne({
+      where: {
+        interestKeyWord: {
+          [Op.like]: `%${interestKeyword}%`,
+        },
+      },
+    });
+
+    if (!interest) {
+      console.log(`No interest found with keyword: ${interestKeyword}`);
+      return [];
+    }
+
+    const usersWithInterest = await UserInterests.findAll({
+      where: {
+        interestId: interest.interestId,
+      },
+    });
+    const userIds = usersWithInterest.map(
+      (userInterest) => userInterest.userId
+    );
+    const users = await User.findAll({
+      where: {
+        userId: {
+          [Op.in]: userIds,
+        },
+      },
+    });
+
+    return users;
+  } catch (error) {
+    console.error("Error finding users by interest:", error);
+    throw error;
+  }
+}
 
 module.exports = {
   getAllDataCollections,
