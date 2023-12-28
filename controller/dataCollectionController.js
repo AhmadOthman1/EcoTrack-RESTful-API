@@ -87,6 +87,8 @@ const createDataCollection = async (req, res) => {
 };
 
 const updateDataCollection = async (req, res) => {
+  const { location, interests, description, date } = req.body;
+
   const { id } = req.params;
   try {
     const dataCollection = await DataCollection.findByPk(id);
@@ -134,6 +136,7 @@ const updateDataCollection = async (req, res) => {
     await dataCollection.update(req.body);
     res.status(200).json(dataCollection);
   } catch (error) {
+    console.log(error);
     res.status(500).json({ error: "Internal server error" });
   }
 };
@@ -231,16 +234,10 @@ const sendEmailForInterestNotify = async (destEmail, dataCollection) => {
     text: `There's updates related to your interst: ${dataCollection.interests} and its descriped by ${dataCollection.description}`,
   };
 
+  // Send the email
   try {
-    // Send the email
     const info = await transporter.sendMail(mailOptions);
-  } catch (error) {
-    console.error("Error sending email:", error);
-    return res.status(500).json({
-      message: "email not found",
-      body: req.body,
-    });
-  }
+  } catch {}
 };
 module.exports = {
   getAllDataCollections,
