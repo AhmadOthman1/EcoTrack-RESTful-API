@@ -92,19 +92,22 @@ exports.updateProfileInfo = async (req, res) => {
                     await User.update({ userId: userId, token: refreshToken },
                         { where: { userId: existinguserId.userId } })
                         .then(() => {
-                            message += "userId updated;";
+                            message += "userId updated;newAccessToken:" +accessToken +";newRefreshToken:"+refreshToken;
                         })
+                        
                 }
             } else {
                 message += "userId not updated: userId is not valid;";
             }
             //if new name is valid value
             if (name && validator.isUsername(name) && name.length > 1 && name.length < 255) {
-                await User.update({ name: name },
-                    { where: { userId: existinguserId } })
+                var u = await User.update({ name: name },
+                    { where: { userId: existinguserId.userId } })
                     .then(() => {
                         message += "name updated;";
-                    })
+                        
+                    });
+                    
             } else {
                 message += "name not updated: name is not valid;";
             }
@@ -120,7 +123,7 @@ exports.updateProfileInfo = async (req, res) => {
                 if (!isLocationValid) {
                     message += "location not updated: Not Valid location, call /locations to get all available locations;"
                 } else {
-                    await User.update({ location: location }, { where: { userId: existinguserId } });
+                    await User.update({ location: location }, { where: { userId: existinguserId.userId } });
                     message += "location is updated;"
                 }
             } else {

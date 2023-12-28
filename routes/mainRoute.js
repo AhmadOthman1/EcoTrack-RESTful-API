@@ -38,7 +38,7 @@ router.post("/refreshToken", authController.getRefreshToken);
 
 // User Profile Routes
 router.get("/user/myProfile", authenticateToken, userProfile.getProfileInfo);
-router.post(
+router.put(
   "/user/myProfile",
   authenticateToken,
   userProfile.updateProfileInfo
@@ -48,14 +48,14 @@ router.post(
   authenticateToken,
   userProfile.changePassword
 );
-router.post(
-  "/user/removeInterest",
+router.delete(
+  "/user/Interests",
   authenticateToken,
   userProfile.removeInterest
 );
-router.post("/user/addInterest", authenticateToken, userProfile.addInterest);
-router.post(
-  "/user/deleteAccount",
+router.post("/user/Interests", authenticateToken, userProfile.addInterest);
+router.delete(
+  "/user/myProfile",
   authenticateToken,
   userProfile.deleteAccount
 );
