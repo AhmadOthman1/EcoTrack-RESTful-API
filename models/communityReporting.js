@@ -17,6 +17,11 @@ const CommunityReporting = sequelize.define('communityReporting', {
     date: {
         type: Sequelize.STRING,
         allowNull: false,
+
+        validate: {
+            isDate: true //date format
+        }
+        
     },
     interests: {
         type: Sequelize.STRING(1000),
