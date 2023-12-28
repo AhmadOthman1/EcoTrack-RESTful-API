@@ -39,7 +39,13 @@ const createDataCollection = async (req, res) => {
         body: req.body,
       });
     }
-
+    if (description.length < 1 || description.length > 1023) {
+      return res.status(409).json({
+        message:
+          interest + "is Not a Valid description (length must be: 1-1023)",
+        body: req.body,
+      });
+    }
     if (location.length < 1 || location.length > 255) {
       return res.status(409).json({
         message: "Not Valid location (length must be: 1-255)",
@@ -103,6 +109,13 @@ const updateDataCollection = async (req, res) => {
       return res.status(409).json({
         message:
           "Not Valid location, call /locations to get all available locations",
+        body: req.body,
+      });
+    }
+    if (description.length < 1 || description.length > 1023) {
+      return res.status(409).json({
+        message:
+          interest + "is Not a Valid description (length must be: 1-1023)",
         body: req.body,
       });
     }
