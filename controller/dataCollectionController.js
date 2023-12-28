@@ -1,5 +1,6 @@
 const DataCollection = require("../models/dataCollection");
 const Location = require("../models/location");
+const User = require("../models/user");
 
 const ensureDataCollectionModifier = (dataCollection, userId) => {
   return dataCollection.userId === userId;
@@ -68,6 +69,9 @@ const createDataCollection = async (req, res) => {
       description,
       date,
     });
+    const userFromDb = await User.findByPk(userId);
+    await userFromDb.increment("score", { by: 1 });
+
     res.status(201).json(newDataCollection);
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
@@ -140,6 +144,9 @@ const deleteDataCollection = async (req, res) => {
         .json({ error: "You aren't the creator of the collection" });
     }
     await dataCollection.destroy();
+    const userFromDb = await User.findByPk(userId);
+    await userFromDb.increment("score", { by: -1 });
+
     res.status(204).end();
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
