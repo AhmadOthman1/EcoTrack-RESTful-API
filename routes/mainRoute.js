@@ -35,7 +35,8 @@ router.post("/verificationCode", signUpController.postVerificationCode);
 router.post("/login", loginController.postLogin);
 router.post("/logout", authenticateToken, logoutController.postLogOut);
 router.post("/refreshToken", authController.getRefreshToken);
-
+router.get('/locations',getDBLocations.getLocations);
+router.get('/interests',getDBInterests.getInterests);
 // User Profile Routes
 router.get("/user/myProfile", authenticateToken, userProfile.getProfileInfo);
 router.put(
