@@ -6,6 +6,7 @@ const User = require("../models/user");
 const Alert = require("../models/alert");
 const Interests = require("../models/interests");
 const UserInterests = require("../models/userInterests");
+const nodemailer = require("nodemailer");
 
 const ensureDataCollectionModifier = (dataCollection, userId) => {
   return dataCollection.userId === userId;
@@ -168,10 +169,12 @@ const notifyIntersted = async (dataCollection) => {
   });
 };
 const notifySingleIntersted = async (user, dataCollection) => {
-  await Alert.create({
+  const alerter = Alert.create({
     dataCollectionId: dataCollection.dataCollectionId,
     userId: user.userId,
   });
+  const mailer = sendEmailForInterestNotify(user.email, dataCollection);
+  Promise.all([alerter, mailer]);
 };
 
 async function findUsersByInterest(interestKeyword) {
@@ -212,6 +215,33 @@ async function findUsersByInterest(interestKeyword) {
   }
 }
 
+const sendEmailForInterestNotify = async (destEmail, dataCollection) => {
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: "advanced.2001z@gmail.com",
+      pass: "swid eimv ekdn jekj",
+    },
+  });
+
+  const mailOptions = {
+    from: "advanced.2001z@gmail.com",
+    to: destEmail,
+    subject: "EcoTrack Updates!!",
+    text: `There's updates related to your interst: ${dataCollection.interests} and its descriped by ${dataCollection.description}`,
+  };
+
+  try {
+    // Send the email
+    const info = await transporter.sendMail(mailOptions);
+  } catch (error) {
+    console.error("Error sending email:", error);
+    return res.status(500).json({
+      message: "email not found",
+      body: req.body,
+    });
+  }
+};
 module.exports = {
   getAllDataCollections,
   getDataCollectionById,
